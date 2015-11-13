@@ -18,12 +18,12 @@ class Action(threading.Thread):
                 # If the threshold is high enough to move the association, remove it
                 #       from the current memory store
                 if (self._association.frequency >= self._threshold):
-                        self._from_memory.queue.remove(i)
+                        self._from_memory.queue.remove(self._association)
                 # If not, update the frequency and insert (replace) the association
                 #       back in
                 else:
                         self._association.frequency += 1
-                        self._from_memory.queue.put(i,self._association)
+                        self._from_memory.queue.update(i,self._association)
                         self._association = {}
                 
                 # If the association was not reinserted, it needs to be moved to the 

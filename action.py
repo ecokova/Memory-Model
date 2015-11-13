@@ -10,16 +10,24 @@ class Action(threading.Thread):
 
         # eg: Pay attention to, Rehearse, etc
         def performAction(self):
-                with self._from_memory.lock:
-                        self._association = Queue.get(self._from_memory.queue) #get
-                        if (self._association.frequency >= self._threshold):
-                                Queue.remove(self._association)
-                        else:
-                                self._association.frequency += 1
-                                Queue.put(self._association)
-                                self._association = {}
-                                
+                i = 5 #some number
+
+                # Gets value from _from_memory at given index (random or determined
+                #       otherwise)
+                self._association = self._from_memory.queue.peek(i) 
+                # If the threshold is high enough to move the association, remove it
+                #       from the current memory store
+                if (self._association.frequency >= self._threshold):
+                        self._from_memory.queue.remove(i)
+                # If not, update the frequency and insert (replace) the association
+                #       back in
+                else:
+                        self._association.frequency += 1
+                        self._from_memory.queue.put(i,self._association)
+                        self._association = {}
+                
+                # If the association was not reinserted, it needs to be moved to the 
+                #       "to" memory store           
                 if (self._association != {}):
-                        with self._to_memory.lock:
-                                Queue.put(self._association)
+                        self._to_memory.put(self._association)
                         self._association = {}

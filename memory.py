@@ -29,6 +29,7 @@ class MemoryThread(threading.Thread):
                     pass
 
 #Testing
+'''
 mutex = threading.Lock()
 DONE = False
 wait = .2
@@ -38,3 +39,4 @@ q.put(2)
 q.put(3)
 t = MemoryThread(mutex, DONE, q, wait)
 t.run()
+'''

@@ -23,7 +23,7 @@ class Action(threading.Thread):
                         i = i + 1
                         self._DONE = (i == 100)
         # eg: Pay attention to, Rehearse, etc
-        def performAction(self):
+        def performAction(self): 
                 if (self._from_memory.queue.qsize() < 1):
                         return
                 i = random.randrange(0, self._from_memory.queue.qsize())

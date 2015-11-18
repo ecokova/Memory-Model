@@ -3,7 +3,7 @@ import FlexQueue
 import memory
 import threading
 
-from collections import namedtuple
+from collections import namedtuple 
 
 STLock = threading.Lock()
 ST = memory.MemoryThread(STLock, False, FlexQueue.FlexQueue(), 1)

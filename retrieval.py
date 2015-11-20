@@ -5,42 +5,62 @@
 
 import threading
 import random
-from urllib2 import Request, urlopen, URLError
+import os
+from nltk.corpus import wordnet as wn
 
 class Retrieval(threading.Thread):
-    def __init__(self, ST_memBank, LT_memBank, DONE, waitTime)
+    def __init__(self, ST_memBank, LT_memBank, DONE, DONElock, waitTime):
         threading.Thread.__init__(self)
         self.LT = LT_memBank
         self.ST = ST_memBank
         self.DONE = DONE
-        self.dictionary=PyDictionary()
         self.waitTime = waitTime
+        self.DONElock = DONElock
+                
+    def _parseAssoc(self, assoc):
+        assocList = []
+        start = False
+        for i, line in enumerate(assoc):
+            if '=>' in line:
+                words = line.split()
+                for word in words:
+                    word = word.replace(',','')
+                    if '=>' not in word:
+                        assocList.append(word)
+        return assocList
 
     def run(self):
         # while not self.DONE
-        while not self.DONE:
+        while True:
+            self.DONElock.acquire()
+            if self.DONE[0]:
+                break
+            self.DONElock.release()
             # get a ST memory
-            i = random.randrange(0, self.ST.size())
-            try:
-                STmem = self.ST.peek(i,True, self.waitTime)
-            except Empty:
-                continue
+            if self.ST.qsize() > 0:
+                i = random.randrange(0, self.ST.qsize())
+                try:
+                    STmem = self.ST.peek(i,True, self.waitTime)
+                except Empty:
+                    continue
             # look for LT match to ST
-            request = Request("https://pydictionary-geekpradd.rhcloud"
-                              ".com/api/translate/{}".format(STmem))
-            try:
-                response = urlopen(request)
-                STassociations = response.read()
-                for i in range(0, self.LT.size()):
+                try:
+                    retval = os.popen("wn {} -synsn".format(STmem), "r")
+                    assoc = retval.readlines()
+                    STassociations = self._parseAssoc(assoc)
+                    print STassociations
+                except:
+                    continue
+                for i in range(0, self.LT.qsize()):
                     try:
-                        LTmem = self.LT.peek(i, True, self.waitTime)
+                        LTmem = 'gossip'
+                        #LTmem = self.LT.peek(i, True, self.waitTime)
                     except Empty:
                         continue
                     # put my like-LT into ST
-                    if LTmem in STassociations:
-                        self.STmem.put(LTmem)
-                        break
-            except URLError, e:
-                continue
-
-
+                if LTmem in STassociations:
+                    self.ST.put(LTmem)
+                    break
+        
+            
+                        

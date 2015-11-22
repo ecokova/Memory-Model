@@ -1,0 +1,16 @@
+cat good
+dog bad
+pie good
+purple good
+smell good
+people bad
+morning bad
+halligan good
+coffee good
+fruit good
+pen good
+paper good
+winter bad
+computer okay
+mouse good
+carpet bad

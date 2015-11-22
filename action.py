@@ -14,14 +14,14 @@ class Action(threading.Thread):
                 self._from_memory = from_memory
                 self._to_memory = to_memory
                 self._wait_time = wait_time
-                self._DONE = DONE
+                self.DONE = DONE
 
         def run(self):
                 i = 0
-                while not self._DONE:
+                while not self.DONE:
                         self.performAction()
                         i = i + 1
-                        self._DONE = (i == 100)
+                        self.DONE = (i == 100)
         # eg: Pay attention to, Rehearse, etc
         def performAction(self): 
                 if (self._from_memory.queue.qsize() < 1):

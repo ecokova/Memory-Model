@@ -18,10 +18,8 @@ class Action(threading.Thread):
 
         def run(self):
                 i = 0
-                while not self.DONE:
+                while not self.DONE[0]:
                         self.performAction()
-                        i = i + 1
-                        self.DONE = (i == 100)
         # eg: Pay attention to, Rehearse, etc
         def performAction(self): 
                 if (self._from_memory.queue.qsize() < 1):

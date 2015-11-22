@@ -6,7 +6,9 @@
 import threading
 import random
 import os
-from nltk.corpus import wordnet as wn
+from collections import namedtuple
+
+Association = namedtuple("MyStruct", "association frequency")
 
 class Retrieval(threading.Thread):
     def __init__(self, ST_memBank, LT_memBank, DONE, DONElock, waitTime):
@@ -31,11 +33,12 @@ class Retrieval(threading.Thread):
 
     def run(self):
         # while not self.DONE
-        while True:
-            self.DONElock.acquire()
-            if self.DONE[0]:
-                break
-            self.DONElock.release()
+        while not self.DONE[0]:
+          #  self.DONElock.acquire()
+          #  if self.DONE[0]:
+          #      self.DONElock.release()
+          #      break
+          #  self.DONElock.release()
             # get a ST memory
             if self.ST.qsize() > 0:
                 i = random.randrange(0, self.ST.qsize())
@@ -45,22 +48,24 @@ class Retrieval(threading.Thread):
                     continue
             # look for LT match to ST
                 try:
-                    retval = os.popen("wn {} -synsn".format(STmem), "r")
+                    retval = os.popen("wn {} -synsn".format(STmem.association[0]), "r")
                     assoc = retval.readlines()
                     STassociations = self._parseAssoc(assoc)
-                    print STassociations
+                    #print STassociations
                 except:
                     continue
                 for i in range(0, self.LT.qsize()):
                     try:
-                        LTmem = 'gossip'
-                        #LTmem = self.LT.peek(i, True, self.waitTime)
+                        LTmem = self.LT.peek(i, True, self.waitTime)
                     except Empty:
                         continue
                     # put my like-LT into ST
-                if LTmem in STassociations:
-                    self.ST.put(LTmem)
-                    break
+                try: 
+                    if LTmem.association[0] in STassociations:
+                        self.ST.put(LTmem)
+                        break
+                except UnboundLocalError:
+                    continue
         
             
                         

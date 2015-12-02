@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Last Edited: 11.15.2015
 #          By: Jen Hammelman
 # COMP50 Concurrent Programming JEN_CHaZ Memory Model
@@ -47,7 +48,7 @@ class Retrieval(threading.Thread):
                 except Empty:
                     continue
             # look for LT match to ST
-                i = random.randrange(0, STmem.association)
+                i = random.randrange(0, len(STmem.association))
                 try:
                     retval = os.popen("wn {} -synsn".format(STmem.association[i]), "r")
                     assoc = retval.readlines()

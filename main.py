@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 main.py
 Jen Hammelman, Naomi Zarrilli, and Elena Cokova
@@ -20,20 +21,24 @@ Association = namedtuple("MyStruct", "association frequency")
 def parseQs(qfile):
     questions = []
     results = []
-    with open qfile as f:
+    with open(qfile) as f:
         lines = [line for line in f]
         for i in xrange(0,len(lines),5):
-            wc = lines[i:i+4]
-            questions.append("{}\n{}\n{}".format(wc[0],wc[1],wc[2]))
-            results.append({wc[3],wc[4]})
+            try:
+                wc = lines[i:i+5]
+                questions.append("{}\n{}\n{}".format(wc[0],wc[1],wc[2]))
+                results.append((wc[3],wc[4]))
+            except:
+                pass
+    
     return questions, results
 
 def main(argv):
     parser = argparse.ArgumentParser(description='MBTI Memory Model')
-    parser.add_argument('-q','numQs', help='number of questions')
-    parser.add_argument('-qfile', 'qfile', help='question file', 
-                        default='myers-briggs.txt')
-    parser.add_argument('-uinput', 'input', help='user input',
+    parser.add_argument('-q','--numQs', type=int, help='number of questions')
+    parser.add_argument('-qfile', '--qfile', help='question file', 
+                        default='myers-briggs.csv')
+    parser.add_argument('-uinput', '--input', help='user input',
                         default='stdin')
     opts = parser.parse_args()
     
@@ -52,18 +57,21 @@ def main(argv):
     for thread in threads:
         thread.start()
     for i in range(opts.numQs):
-        ans = input(questions[i])
+        ans = raw_input(questions[i])
         if ans == 'A':
-            result = results[i]{0}
+            
+            result = results[i][0]
         else:
-            result = results[i]{1}
+            result = results[i][1]
         SM.queue.put(Association(result,0))
 
     DONE[0] = True
     for thread in threads:
         thread.join()
     print "Long Term Memory: ", list(LTM.queue.queue)
+    print
     print "Short Term Memory: ", list(STM.queue.queue)
+    print
     print "Sensory Memory: ", list(SM.queue.queue)
     exit(0)
     

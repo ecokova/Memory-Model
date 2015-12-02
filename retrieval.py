@@ -47,8 +47,9 @@ class Retrieval(threading.Thread):
                 except Empty:
                     continue
             # look for LT match to ST
+                i = random.randrange(0, STmem.association)
                 try:
-                    retval = os.popen("wn {} -synsn".format(STmem.association[0]), "r")
+                    retval = os.popen("wn {} -synsn".format(STmem.association[i]), "r")
                     assoc = retval.readlines()
                     STassociations = self._parseAssoc(assoc)
                     #print STassociations

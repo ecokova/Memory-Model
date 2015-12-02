@@ -15,8 +15,37 @@ import sys
 from collections import namedtuple
 import time
 import argparse
+import urllib2
+import operator
+import json
 
 Association = namedtuple("MyStruct", "association frequency")
+
+def analyzePersonality(memories):
+    all_traits = [('judging-function', 'Thinking', 'Feeling'), \
+            ('attitude', 'Extraversion', 'Introversion'), \
+            ('lifestyle', 'Perceiving', 'Judging'), \
+            ('perceiving-function', 'Sensing', 'iNtuition')]
+    for mem in memories: 
+        assoc = [x[0] for x in mem.queue.queue]
+        words = '+'.join(assoc) #reduce(operator.add, stmAssoc, '')
+        
+        for trait in all_traits:
+            text = words.replace(' ', '+')
+            text = text.replace('\n','')
+            url = 'http://uclassify.com/browse/prfekt/myers-briggs-' + trait[0] + '/' + \
+                    'ClassifyText?readkey=qv7uGKYDBcSK&' + \
+                    'text=' + text + '&version=1.01&output=json'
+            try:
+                result = urllib2.urlopen(url)
+                MBTI = json.loads(result.read())['cls1']
+                
+                print MBTI[trait[1]], ',', MBTI[trait[2]]
+            except urllib2.URLError, e:
+                print e
+                pass
+
+   
 
 def parseQs(qfile):
     questions = []
@@ -73,6 +102,9 @@ def main(argv):
     print "Short Term Memory: ", list(STM.queue.queue)
     print
     print "Sensory Memory: ", list(SM.queue.queue)
+
+    print '++++++++++++++++++++++++++++++++++'
+    analyzePersonality([STM, LTM])
     exit(0)
     
 if __name__ == '__main__':

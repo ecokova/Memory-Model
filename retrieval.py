@@ -45,7 +45,7 @@ class Retrieval(threading.Thread):
                 i = random.randrange(0, self.ST.qsize())
                 try:
                     STmem = self.ST.peek(i,True, self.waitTime)
-                except Empty:
+                except:
                     continue
             # look for LT match to ST
                 i = random.randrange(0, len(STmem.association))

@@ -18,6 +18,11 @@ import argparse
 import urllib2
 import operator
 import json
+import matplotlib
+matplotlib.use('TKAgg')
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 Association = namedtuple("MyStruct", "association frequency")
 
@@ -26,6 +31,7 @@ def analyzePersonality(memories):
             ('attitude', 'Extraversion', 'Introversion'), \
             ('lifestyle', 'Perceiving', 'Judging'), \
             ('perceiving-function', 'Sensing', 'iNtuition')]
+    MBTIlist= list()
     for mem in memories: 
         assoc = [x[0] for x in mem.queue.queue]
         words = '+'.join(assoc) #reduce(operator.add, stmAssoc, '')
@@ -39,13 +45,28 @@ def analyzePersonality(memories):
             try:
                 result = urllib2.urlopen(url)
                 MBTI = json.loads(result.read())['cls1']
-                
+                MBTIlist.append(MBTI[trait[1]])
+		MBTIlist.append(MBTI[trait[2]])
                 print MBTI[trait[1]], ',', MBTI[trait[2]]
             except urllib2.URLError, e:
                 print e
                 pass
-
+    return MBTIlist
    
+def animateBarplot(rects, x):
+    #x = analyzePersonality(memories)
+    #rects = plt.bar(range(8), x, align='center'
+    for rect,h in zip(rects,x):
+	rect.set_height(h)
+    fig.canvas.draw()
+		
+def animateHelper (memories, DONE):
+    x = analyzePersonality(memories)
+    rects = plt.bar(range(8), x, align='center'
+    while not DONE:
+        animate_barplot(rects, x)
+        x = analyzePersonlity(memories)  
+        
 
 def parseQs(qfile):
     questions = []
@@ -85,6 +106,11 @@ def main(argv):
     threads = [LTM, STM, SM, RHS, ATN, RTV]
     for thread in threads:
         thread.start()
+
+    fig = plt.figure()
+    win = fig.canvas.manager.window
+    win.after(100, ##lambda fcn with no arguments)
+    plt.show()
     for i in range(opts.numQs):
         ans = raw_input(questions[i])
         if ans == 'A':

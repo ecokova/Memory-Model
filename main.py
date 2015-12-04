@@ -40,34 +40,36 @@ def analyzePersonality(memories):
             text = words.replace(' ', '+')
             text = text.replace('\n','')
             url = 'http://uclassify.com/browse/prfekt/myers-briggs-' + trait[0] + '/' + \
-                    'ClassifyText?readkey=qv7uGKYDBcSK&' + \
+                    'ClassifyText?readkey=jHP7vqc5rX83&' + \
                     'text=' + text + '&version=1.01&output=json'
             try:
                 result = urllib2.urlopen(url)
                 MBTI = json.loads(result.read())['cls1']
                 MBTIlist.append(MBTI[trait[1]])
 		MBTIlist.append(MBTI[trait[2]])
-                print MBTI[trait[1]], ',', MBTI[trait[2]]
             except urllib2.URLError, e:
                 print e
                 pass
     return MBTIlist
-   
-def animateBarplot(rects, x):
-    #x = analyzePersonality(memories)
-    #rects = plt.bar(range(8), x, align='center'
+
+'''
+ define a function that collects personality results into 
+ some global variable
+
+ call that function from main in a thread
+
+ upon joining all threads, call the animation barplot over
+ our collection of multiple personalities
+
+'''
+
+def animateBarplot(fig, rects, memories):
+    print "in animate barplot"
+    x = analyzePersonality(memories)
     for rect,h in zip(rects,x):
 	rect.set_height(h)
     fig.canvas.draw()
 		
-def animateHelper (memories, DONE):
-    x = analyzePersonality(memories)
-    rects = plt.bar(range(8), x, align='center'
-    while not DONE:
-        animate_barplot(rects, x)
-        x = analyzePersonlity(memories)  
-        
-
 def parseQs(qfile):
     questions = []
     results = []
@@ -102,15 +104,20 @@ def main(argv):
     RHS = action.Action(5,STM, LTM, 0.2, DONE)
     ATN = action.Action(0, SM, STM, 0.1, DONE)
     RTV = retrieval.Retrieval(STM.queue, LTM.queue, DONE, threading.Lock(), 0.2)
-
+    x = analyzePersonality([STM, LTM])
     threads = [LTM, STM, SM, RHS, ATN, RTV]
+
+    plt.ion()
+    fig = plt.figure()
+    win = fig.canvas.manager.window
+    rects = plt.bar(range(len(x)), x, align='center')
+    plt.show()
+
     for thread in threads:
         thread.start()
 
-    fig = plt.figure()
-    win = fig.canvas.manager.window
-    win.after(100, ##lambda fcn with no arguments)
-    plt.show()
+    win.after(100, lambda: animateBarplot(fig, rects, [STM, LTM]))
+
     for i in range(opts.numQs):
         ans = raw_input(questions[i])
         if ans == 'A':
@@ -123,6 +130,9 @@ def main(argv):
     DONE[0] = True
     for thread in threads:
         thread.join()
+
+
+
     print "Long Term Memory: ", list(LTM.queue.queue)
     print
     print "Short Term Memory: ", list(STM.queue.queue)
@@ -130,7 +140,9 @@ def main(argv):
     print "Sensory Memory: ", list(SM.queue.queue)
 
     print '++++++++++++++++++++++++++++++++++'
-    analyzePersonality([STM, LTM])
+    print analyzePersonality([STM, LTM])
+    done = raw_input("Done, ok?")
+    
     exit(0)
     
 if __name__ == '__main__':

@@ -42,8 +42,8 @@ class Retrieval(threading.Thread):
           #  self.DONElock.release()
             # get a ST memory
             if self.ST.qsize() > 0:
-                i = random.randrange(0, self.ST.qsize())
                 try:
+                    i = random.randrange(0, self.ST.qsize())
                     STmem = self.ST.peek(i,True, self.waitTime)
                 except:
                     continue

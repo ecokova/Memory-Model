@@ -8,7 +8,7 @@ Edited 12/4/2015
 
 import memory
 import action
-import retrieval
+import retrieval_underscores as retrieval
 import FlexQueue
 import threading
 import sys
@@ -26,23 +26,23 @@ import numpy as np
 
 Association = namedtuple("MyStruct", "association frequency")
 
-traitNames = ['Extraversion','Introversion', \
+trait_names = ['Extraversion','Introversion', \
               'Sensing','iNtuition', 'Thinking','Feeling',
               'Perceiving','Judging']
 colors = ['r','b', 'g','y', 'k','w','m','c']
 
-def analyzePersonality(memories):
-    allTraits = [('attitude', 'Extraversion', 'Introversion'), \
+def analyze_personality(memories):
+    all_traits = [('attitude', 'Extraversion', 'Introversion'), \
                  ('perceiving-function', 'Sensing', 'iNtuition'), \
                  ('judging-function', 'Thinking', 'Feeling'), \
                  ('lifestyle', 'Perceiving', 'Judging')]
-    MBTIlist= list()
+    MBTI_list= list()
 
     for i in range(len(memories)):
         mem = memories[i]
         assoc = [x[0] for x in mem.queue.queue]
         words = '+'.join(assoc) #reduce(operator.add, stmAssoc, '')
-        for trait in allTraits:
+        for trait in all_traits:
             num = [0.5, 0.5]
             text = words.replace(' ', '+')
             text = text.replace('\n','')
@@ -53,25 +53,25 @@ def analyzePersonality(memories):
             try:
                 result = urllib2.urlopen(url)
                 MBTI = json.loads(result.read())['cls1']
-                MBTIlist.append(MBTI[trait[1]])
-		MBTIlist.append(MBTI[trait[2]])
+                MBTI_list.append(MBTI[trait[1]])
+		MBTI_list.append(MBTI[trait[2]])
             except urllib2.URLError, e:
                 print e
                 pass
            
             '''
-            MBTIlist.append(num[0])
-            MBTIlist.append(num[1])
+            MBTI_list.append(num[0])
+            MBTI_list.append(num[1])
             '''
-    return MBTIlist
+    return MBTI_list
 
-def getPersonality(personalityResults, memories, DONE):
+def get_personality(personality_results, memories, DONE):
     while not DONE[0]:
-        personalityResults.append(analyzePersonality(memories))
+        personality_results.append(analyze_personality(memories))
         
-def animateBarplot(fig, rects, personalityResults):
+def animate_barplot(fig, rects, personality_results):
     half = len(rects)/2
-    for results in personalityResults:
+    for results in personality_results:
         time.sleep(0.3)
         for i in xrange(0,len(rects)):
             rects[i].set_height(results[i])
@@ -97,28 +97,27 @@ def main(argv):
     parser.add_argument('-q','--numQs', type=int, help='number of questions')
     parser.add_argument('-qfile', '--qfile', help='question file', 
                         default='myers-briggs.csv')
-    parser.add_argument('-t', '--waitTime', type=float,
-                        help='thread wait time (s)',
+    parser.add_argument('-t','--time', type=float, help='time for waiting',
                         default=0.2)
     opts = parser.parse_args()
     
     DONE = [False]
     [questions, results] = parseQs(opts.qfile)
 
-    LTM = memory.MemoryThread(DONE, 0.2, 0)
-    STM = memory.MemoryThread(DONE, 0.2, 7)
-    SM  = memory.MemoryThread(DONE, 0.2, 5)
+    LTM = memory.MemoryThread(DONE, 0.1, 0, "LTM")
+    STM = memory.MemoryThread(DONE, 0.1, 7, "STM")
+    SM  = memory.MemoryThread(DONE, 0.1, 5, "SM")
 
-    RHS = action.Action(5,STM, LTM, 0.2, DONE)
-    ATN = action.Action(0, SM, STM, 0.1, DONE)
-    RTV = retrieval.Retrieval(STM.queue, LTM.queue, DONE, threading.Lock(), 0.2)
-    personalityResults = []
+    RHS = action.Action(5,STM, LTM, 0.1, DONE, "RHS")
+    ATN = action.Action(0, SM, STM, 0.001, DONE, "ATN")
+    RTV = retrieval.Retrieval(STM.queue, LTM.queue, DONE, threading.Lock(), 0.1, "RTV")
+    personality_results = []
     
     threads = [LTM, STM, SM, RHS, ATN, RTV]
 
-    personalityAccumulator = threading.Thread(target =getPersonality,
-                                              args=[personalityResults, [STM, LTM], DONE])
-    personalityAccumulator.start()
+    personality_accumulator = threading.Thread(target =get_personality,
+                                              args=[personality_results, [STM, LTM], DONE])
+    personality_accumulator.start()
 
     for thread in threads:
         thread.start()
@@ -135,18 +134,18 @@ def main(argv):
     
     for thread in threads:
         thread.join()
-    personalityAccumulator.join()
+    personality_accumulator.join()
 
-    if personalityResults:
+    if personality_results:
         plt.ion()
         fig = plt.figure()
         win = fig.canvas.manager.window
-        x = personalityResults[0]
+        x = personality_results[0]
         print x
         rects = plt.bar(range(len(x)), x, align='center', color=colors)
-        plt.xticks(range(len(x)), traitNames+traitNames, rotation='vertical')
+        plt.xticks(range(len(x)), trait_names+trait_names, rotation='vertical')
         plt.show()
-        win.after(100, lambda: animateBarplot(fig, rects, personalityResults))
+        win.after(100, lambda: animate_barplot(fig, rects, personality_results))
 
     else:
         print "We didn't get enough info to form your personality. Please try again!"

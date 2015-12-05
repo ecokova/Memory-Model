@@ -7,6 +7,10 @@ except ImportError:
     import dummy_threading as _threading
 from collections import deque
 import heapq
+class Full(Exception):
+    pass
+class Empty(Exception):
+    pass
 
 __all__ = ['Empty', 'Full', 'Queue', 'PriorityQueue', 'LifoQueue']
 
@@ -112,7 +116,7 @@ class FlexQueue():
             if self.maxsize > 0:
                 if not block:
                     if self._qsize() == self.maxsize:
-                        raise Full
+                        raise Full('queue is full')
                 elif timeout is None:
                     while self._qsize() == self.maxsize:
                         self.not_full.wait()
@@ -123,7 +127,7 @@ class FlexQueue():
                     while self._qsize() == self.maxsize:
                         remaining = endtime - _time()
                         if remaining <= 0.0:
-                            raise Full
+                            raise Full('queue is full')
                         self.not_full.wait(remaining)
             self._put(item)
             self.unfinished_tasks += 1
@@ -156,7 +160,7 @@ class FlexQueue():
         try:
             if not block:
                 if not self._qsize():
-                    raise Empty
+                    raise Empty('empty list')
             elif timeout is None:
                 while not self._qsize():
                     self.not_empty.wait()
@@ -167,7 +171,7 @@ class FlexQueue():
                 while not self._qsize():
                     remaining = endtime - _time()
                     if remaining <= 0.0:
-                        raise Empty
+                        raise Empty('empty list')
                     self.not_empty.wait(remaining)
             item = self._get()
             self.not_full.notify()
@@ -216,7 +220,7 @@ class FlexQueue():
         try:
             if not block:
                 if i not in range(0, self._qsize()):
-                    raise Empty
+                    raise Empty('empty list')
             elif timeout is None:
                 while i not in range(0,self._qsize()):
                     self.not_empty.wait()
@@ -227,7 +231,7 @@ class FlexQueue():
                 while i not in range(0, self._qsize()):
                     remaining = endtime - _time()
                     if remaining <= 0.0:
-                        raise Empty
+                        raise Empty('empty list')
                     self.not_empty.wait(remaining)
             item = self._peek(i)
             return item
@@ -239,7 +243,7 @@ class FlexQueue():
         try:
             if not block:
                 if i not in range(0,self._qsize()):
-                    raise Empty
+                    raise Empty('empty list')
             elif timeout is None:
                 while i not in range(0, self._qsize()):
                     self.not_empty.wait()
@@ -250,7 +254,7 @@ class FlexQueue():
                 while i not in range(0, self._qsize()):
                     remaining = endtime - _time()
                     if remaining <= 0.0:
-                        raise Empty
+                        raise Empty('empty list')
                     self.not_empty.wait(remaining)
             self._update(i,value)
         finally:
@@ -271,7 +275,7 @@ class FlexQueue():
         try:
             if not block:
                 if not self._qsize():
-                    raise Empty
+                    raise Empty('empty list')
             elif timeout is None:
                 while not self._qsize():
                     self.not_empty.wait()
@@ -282,7 +286,7 @@ class FlexQueue():
                 while not self._qsize():
                     remaining = endtime - _time()
                     if remaining <= 0.0:
-                        raise Empty
+                        raise Empty('empty list')
                     self.not_empty.wait(remaining)
             self._remove(value)
             self.not_full.notify()

@@ -19,7 +19,8 @@ class Retrieval(threading.Thread):
         self.DONE = DONE
         self.waitTime = waitTime
         self.DONElock = DONElock
-                
+        self.myname = myname
+        
     def _parseAssoc(self, assoc):
         assocList = []
         start = False

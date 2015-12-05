@@ -11,11 +11,12 @@ import FlexQueue
 
 
 class MemoryThread(threading.Thread):
-    def __init__(self, DONE,wait_time, sizeBound):
+    def __init__(self, DONE, wait_time, sizeBound):
         threading.Thread.__init__(self)
         self.queue = FlexQueue.FlexQueue(sizeBound)
         self.DONE = DONE
         self.wait_time = wait_time
+        
     def run(self):
         start_time = time.time()
         #print start_time

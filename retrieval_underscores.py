@@ -12,16 +12,16 @@ from collections import namedtuple
 Association = namedtuple("MyStruct", "association frequency")
 
 class Retrieval(threading.Thread):
-    def __init__(self, ST_memBank, LT_memBank, DONE, DONElock, waitTime):
+    def __init__(self, STM, LTM, DONE, DONE_lock, wait_time):
         threading.Thread.__init__(self)
-        self.LT = LT_memBank
-        self.ST = ST_memBank
+        self.LT = LTM
+        self.ST = STM
         self.DONE = DONE
-        self.waitTime = waitTime
-        self.DONElock = DONElock
-                
+        self.wait_time = wait_time
+        self.DONE_lock = DONE_lock
+        
     def _parseAssoc(self, assoc):
-        assocList = []
+        assoc_list = []
         start = False
         for i, line in enumerate(assoc):
             if '=>' in line:
@@ -29,42 +29,42 @@ class Retrieval(threading.Thread):
                 for word in words:
                     word = word.replace(',','')
                     if '=>' not in word:
-                        assocList.append(word)
-        return assocList
+                        assoc_list.append(word)
+        return assoc_list
 
     def run(self):
         # while not self.DONE
-        while(1):
-          #  self.DONElock.acquire()
+        while not self.DONE[0]:
+          #  self.DONE_lock.acquire()
           #  if self.DONE[0]:
-          #      self.DONElock.release()
+          #      self.DONE_lock.release()
           #      break
-          #  self.DONElock.release()
-            if self.DONE[0]:
-                print my name, "has received done signal"
-                return
+          #  self.DONE_lock.release()
             # get a ST memory
             if self.ST.qsize() > 0:
-                i = random.randrange(0, self.ST.qsize())
-                STmem = self.ST.peek(i,True, self.waitTime)
-            # look for LT match to ST
-                i = random.randrange(0, len(STmem.association))
                 try:
-                    retval = os.popen("wn {} -synsn".format(STmem.association[i]), "r")
+                    i = random.randrange(0, self.ST.qsize())
+                    ST_mem = self.ST.peek(i,True, self.wait_time)
+                except:
+                    continue
+            # look for LT match to ST
+                i = random.randrange(0, len(ST_mem.association))
+                try:
+                    retval = os.popen("wn {} -synsn".format(ST_mem.association[i]), "r")
                     assoc = retval.readlines()
-                    STassociations = self._parseAssoc(assoc)
-                    #print STassociations
+                    ST_assocs = self._parseAssoc(assoc)
+                    #print ST_assocs
                 except:
                     continue
                 for i in range(0, self.LT.qsize()):
                     try:
-                        LTmem = self.LT.peek(i, True, self.waitTime)
+                        LT_mem = self.LT.peek(i, True, self.wait_time)
                     except Empty:
                         continue
                     # put my like-LT into ST
                 try: 
-                    if LTmem.association[0] in STassociations:
-                        self.ST.put(LTmem)
+                    if LT_mem.association[0] in ST_assocs:
+                        self.ST.put(LT_mem)
                         break
                 except UnboundLocalError:
                     continue

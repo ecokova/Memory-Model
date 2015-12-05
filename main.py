@@ -23,6 +23,10 @@ matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 
+# API Keys:
+# jHP7vqc5rX83
+# qv7uGKYDBcSK
+# lt42BVovxems (hasn't worked yet)
 
 Association = namedtuple("MyStruct", "association frequency")
 
@@ -41,14 +45,14 @@ def analyzePersonality(memories):
     for i in range(len(memories)):
         mem = memories[i]
         assoc = [x[0] for x in mem.queue.queue]
-        words = '+'.join(assoc) #reduce(operator.add, stmAssoc, '')
+        words = '+'.join(assoc) 
         for trait in allTraits:
             num = [0.5, 0.5]
             text = words.replace(' ', '+')
             text = text.replace('\n','')
             
             url = 'http://uclassify.com/browse/prfekt/myers-briggs-' + trait[0] + '/' + \
-                    'ClassifyText?readkey=lt42BVovxems' + \
+                    'ClassifyText?readkey=qv7uGKYDBcSK' + \
                     'text=' + text + '&version=1.01&output=json'
             try:
                 result = urllib2.urlopen(url)

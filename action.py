@@ -21,18 +21,15 @@ class Action(threading.Thread):
 	def run(self):
 		while (1):
 			if self.DONE[0]:
-				print self._myname
 				return
 			i = 0
 			# Gets value from _from_memory at random index
 			try:
 				self._association,i = self._from_memory.rand_peek(True, self._wait_time)
 			except:
-				print "peek failed"
 				continue
 			# If the threshold is high enough to move the association, remove it
 			#       from the current memory store
-				print "past peek"
 			if (self._association.frequency >= self._threshold):
 				try:
 					self._from_memory.remove(self._association, True, self._wait_time)
@@ -50,7 +47,6 @@ class Action(threading.Thread):
 			#       "to" memory store           
 			if (self._association != None):
 				try:
-					print "successful update"
 					self._to_memory.put(self._association, True, self._wait_time)
 				except:
 					pass

@@ -12,6 +12,7 @@ import retrieval_underscores as retrieval
 import FlexQueue
 import threading
 import sys
+import io
 from collections import namedtuple
 import time
 import argparse
@@ -48,7 +49,7 @@ def analyze_personality(memories):
             text = text.replace('\n','')
             
             url = 'http://uclassify.com/browse/prfekt/myers-briggs-' + trait[0] + '/' + \
-                    'ClassifyText?readkey=lt42BVovxems' + \
+                    'ClassifyText?readkey=jHP7vqc5rX83&' + \
                     'text=' + text + '&version=1.01&output=json'
             try:
                 result = urllib2.urlopen(url)
@@ -93,6 +94,8 @@ def main(argv):
     parser.add_argument('-q','--numQs', type=int, help='number of questions')
     parser.add_argument('-qfile', '--qfile', help='question file', 
                         default='myers-briggs.csv')
+    parser.add_argument('-afile', '--afile', help='answer file default stdin',
+                        default='stdin')
     parser.add_argument('-t','--time', type=float, help='time for waiting',
                         default=0.2)
     opts = parser.parse_args()
@@ -100,9 +103,9 @@ def main(argv):
     DONE = [False]
     [questions, results] = parseQs(opts.qfile)
 
-    LTM = memory.MemoryThread(DONE, opts.time, 0, "LTM")
-    STM = memory.MemoryThread(DONE, opts.time, 7, "STM")
-    SM  = memory.MemoryThread(DONE, opts.time, 5, "SM")
+    LTM = memory.MemoryThread(DONE, opts.time, 100, 0, "LTM")
+    STM = memory.MemoryThread(DONE, opts.time, 1, 7, "STM")
+    SM  = memory.MemoryThread(DONE, opts.time, 0.1, 5, "SM")
 
     RHS = action.Action(5, STM.queue, LTM.queue, opts.time, DONE, "RHS")
     ATN = action.Action(0, SM.queue, STM.queue, opts.time, DONE, "ATN")
@@ -118,13 +121,25 @@ def main(argv):
     for thread in threads:
         thread.start()
 
-    for i in range(opts.numQs):
-        ans = raw_input(questions[i])
-        if ans == 'A':
-            result = results[i][0]
-        else:
-            result = results[i][1]
-        SM.queue.put(Association(result,0))
+    if opts.afile == 'stdin':
+        for i in range(opts.numQs):
+            ans = raw_input(questions[i])
+            if ans == 'A':
+                result = results[i][0]
+            else:
+                result = results[i][1]
+            SM.queue.put(Association(result,0))
+    else:
+        i = 0
+        for line in open(opts.afile):
+            if i <= opts.numQs:
+                ans = line.strip()
+                if ans == 'A':
+                    result = results[i][0]
+                else:
+                    result = results[i][1]
+                SM.queue.put(Association(result,0))
+            i += 1
 
     DONE[0] = True
     
@@ -132,12 +147,12 @@ def main(argv):
         thread.join()
     personality_accumulator.join()
 
+    input = raw_input('press <ENTER> to see results')
     if personality_results:
         plt.ion()
         fig = plt.figure()
         win = fig.canvas.manager.window
         x = personality_results[0]
-        print x
         rects = plt.bar(range(len(x)), x, align='center', color=colors)
         plt.xticks(range(len(x)), trait_names+trait_names, rotation='vertical')
         plt.show()
@@ -151,9 +166,8 @@ def main(argv):
     print "Short Term Memory: ", list(STM.queue.queue)
     print
     print "Sensory Memory: ", list(SM.queue.queue)
-    
-    done = raw_input("Done, ok?")
-    
+
+    input = raw_input('press any key to exit')
     exit(0)
     
 if __name__ == '__main__':

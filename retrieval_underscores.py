@@ -37,7 +37,6 @@ class Retrieval(threading.Thread):
         ST_mem = ""
         while (1):
             if self.DONE[0]:
-                print self._myname
                 return
             try: 
                 ST_mem = self.ST.rand_peek(True, self._wait_time)

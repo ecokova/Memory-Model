@@ -1,5 +1,6 @@
 #class Queue
-	
+import random
+
 from time import time as _time
 try:
     import threading as _threading
@@ -233,11 +234,12 @@ class FlexQueue():
                     if remaining <= 0.0:
                         raise Empty('empty list')
                     self.not_empty.wait(remaining)
-            i = random.randrange(0, self._qsize())                    
+            i = random.randrange(0, self._qsize())
             item = self._peek(i)
             return item, i
         finally:
             self.not_empty.release()
+
 
     def update(self, i, value, block=True, timeout=None):
         self.not_empty.acquire()

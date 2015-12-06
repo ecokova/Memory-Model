@@ -30,7 +30,19 @@ Association = namedtuple("MyStruct", "association frequency")
 trait_names = ['Extraversion','Introversion', \
               'Sensing','iNtuition', 'Thinking','Feeling',
               'Perceiving','Judging']
-colors = ['r','b', 'g','y', 'k','w','m','c']
+
+'''
+#Uncomment for shorter graph labels
+trait_names = ['E','I', \
+              'S','N', 'T','F',
+              'P','J']
+'''
+colors = ['#818aa3','#a39081','#c5dca0','#dca0c5', '#f5f2b8','#efb8f5','#e8a994','#94e8e8',
+          '#313873','#534031','#758c50','#8c5075', '#b5b268','#9f68a5','#985944','#449898']
+
+# API Keys
+#  qv7uGKYDBcSK
+#  jHP7vqc5rX83
 
 def analyze_personality(memories):
     all_traits = [('attitude', 'Extraversion', 'Introversion'), \

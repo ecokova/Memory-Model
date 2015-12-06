@@ -59,10 +59,6 @@ def analyze_personality(memories):
                 print e
                 pass
            
-            '''
-            MBTI_list.append(num[0])
-            MBTI_list.append(num[1])
-            '''
     return MBTI_list
 
 def get_personality(personality_results, memories, DONE):
@@ -104,13 +100,13 @@ def main(argv):
     DONE = [False]
     [questions, results] = parseQs(opts.qfile)
 
-    LTM = memory.MemoryThread(DONE, 0.1, 0, "LTM")
-    STM = memory.MemoryThread(DONE, 0.1, 7, "STM")
-    SM  = memory.MemoryThread(DONE, 0.1, 5, "SM")
+    LTM = memory.MemoryThread(DONE, opts.time, 0, "LTM")
+    STM = memory.MemoryThread(DONE, opts.time, 7, "STM")
+    SM  = memory.MemoryThread(DONE, opts.time, 5, "SM")
 
-    RHS = action.Action(5,STM, LTM, 0.1, DONE, "RHS")
-    ATN = action.Action(0, SM, STM, 0.001, DONE, "ATN")
-    RTV = retrieval.Retrieval(STM.queue, LTM.queue, DONE, threading.Lock(), 0.1, "RTV")
+    RHS = action.Action(5, STM.queue, LTM.queue, opts.time, DONE, "RHS")
+    ATN = action.Action(0, SM.queue, STM.queue, opts.time, DONE, "ATN")
+    RTV = retrieval.Retrieval(STM.queue, LTM.queue, opts.time, DONE, "RTV")
     personality_results = []
     
     threads = [LTM, STM, SM, RHS, ATN, RTV]

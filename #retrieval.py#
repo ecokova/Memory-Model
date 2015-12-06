@@ -12,15 +12,14 @@ from collections import namedtuple
 Association = namedtuple("MyStruct", "association frequency")
 
 class Retrieval(threading.Thread):
-    def __init__(self, ST_memBank, LT_memBank, DONE, DONElock, waitTime):
+    def __init__(self, ST_memBank, LT_memBank, DONE, waitTime):
         threading.Thread.__init__(self)
         self.LT = LT_memBank
         self.ST = ST_memBank
         self.DONE = DONE
         self.waitTime = waitTime
         self.DONElock = DONElock
-        self.myname = myname
-        
+                
     def _parseAssoc(self, assoc):
         assocList = []
         start = False

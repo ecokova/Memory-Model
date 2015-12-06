@@ -11,32 +11,22 @@ import FlexQueue
 
 
 class MemoryThread(threading.Thread):
-    def __init__(self, DONE, wait_time, sizeBound):
+    def __init__(self, DONE, wait_time, size_bound, myname):
         threading.Thread.__init__(self)
-        self.queue = FlexQueue.FlexQueue(sizeBound)
+        self.queue = FlexQueue.FlexQueue(size_bound)
         self.DONE = DONE
-        self.wait_time = wait_time
+        self._wait_time = wait_time
+        self._myname = myname
         
     def run(self):
         start_time = time.time()
         #print start_time
-        while not self.DONE[0]:
-            if ((time.time() - start_time) % self.wait_time == 0):
+        while (1):
+            if self.DONE[0]:
+                print self._myname
+                return
+            if ((time.time() - start_time) % self._wait_time == 0):
                 try:
                     x = self.queue.get()
-                    #print x
-                except self.queue.Empty:
+                except:
                     pass
-
-#Testing
-'''
-mutex = threading.Lock()
-DONE = False
-wait = .2
-q = FlexQueue.FlexQueue(3)
-q.put(1)
-q.put(2)
-q.put(3)
-t = MemoryThread(mutex, DONE, q, wait)
-t.run()
-'''

@@ -12,13 +12,13 @@ from collections import namedtuple
 Association = namedtuple("MyStruct", "association frequency")
 
 class Retrieval(threading.Thread):
-    def __init__(self, STM, LTM, DONE, DONE_lock, wait_time):
+    def __init__(self, STM, LTM, wait_time, DONE, myname):
         threading.Thread.__init__(self)
         self.LT = LTM
         self.ST = STM
         self.DONE = DONE
-        self.wait_time = wait_time
-        self.DONE_lock = DONE_lock
+        self._wait_time = wait_time
+        self._myname = myname
         
     def _parseAssoc(self, assoc):
         assoc_list = []
@@ -33,41 +33,37 @@ class Retrieval(threading.Thread):
         return assoc_list
 
     def run(self):
-        # while not self.DONE
-        while not self.DONE[0]:
-          #  self.DONE_lock.acquire()
-          #  if self.DONE[0]:
-          #      self.DONE_lock.release()
-          #      break
-          #  self.DONE_lock.release()
-            # get a ST memory
-            if self.ST.qsize() > 0:
-                try:
-                    i = random.randrange(0, self.ST.qsize())
-                    ST_mem = self.ST.peek(i,True, self.wait_time)
-                except:
-                    continue
+        runline = "wn {} -synsn"
+        ST_mem = ""
+        while (1):
+            if self.DONE[0]:
+                print self._myname
+                return
+            try: 
+                ST_mem = self.ST.rand_peek(True, self._wait_time)
+            except:
+                continue
             # look for LT match to ST
-                i = random.randrange(0, len(ST_mem.association))
-                try:
-                    retval = os.popen("wn {} -synsn".format(ST_mem.association[i]), "r")
-                    assoc = retval.readlines()
-                    ST_assocs = self._parseAssoc(assoc)
-                    #print ST_assocs
-                except:
-                    continue
-                for i in range(0, self.LT.qsize()):
-                    try:
-                        LT_mem = self.LT.peek(i, True, self.wait_time)
-                    except Empty:
-                        continue
-                    # put my like-LT into ST
-                try: 
-                    if LT_mem.association[0] in ST_assocs:
-                        self.ST.put(LT_mem)
-                        break
-                except UnboundLocalError:
-                    continue
+            if ST_mem is "":
+                continue
+            try:
+                retval = os.popen(runline.format(ST_mem.association[i]), "r")
+                assoc = retval.readlines()
+                ST_assocs = self._parseAssoc(assoc)
+                #print ST_assocs
+            except:
+                continue
+            try:
+                LT_mem = self.LT.rand_peek(True, self._wait_time)
+            except:
+                continue
+            # put my like-LT into ST
+            try: 
+                if LT_mem.association[0] in ST_assocs:
+                    self.ST.put(LT_mem)
+                    break
+            except UnboundLocalError:
+                continue
         
             
                         

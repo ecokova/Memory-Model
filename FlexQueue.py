@@ -215,26 +215,27 @@ class FlexQueue():
     def _remove(self, value):
         self.queue.remove(value)
 
-    def peek(self, i, block=True, timeout=None):
+    def rand_peek(self, block=True, timeout=None):
         self.not_empty.acquire()
         try:
             if not block:
-                if i not in range(0, self._qsize()):
+                if not self._qsize():
                     raise Empty('empty list')
             elif timeout is None:
-                while i not in range(0,self._qsize()):
+                if not self._qsize():                
                     self.not_empty.wait()
             elif timeout < 0:
                 raise ValueError("'timeout' must be a non-negative number")
             else:
                 endtime = _time() + timeout
-                while i not in range(0, self._qsize()):
+                while not self._qsize():
                     remaining = endtime - _time()
                     if remaining <= 0.0:
                         raise Empty('empty list')
                     self.not_empty.wait(remaining)
+            i = random.randrange(0, self._qsize())                    
             item = self._peek(i)
-            return item
+            return item, i
         finally:
             self.not_empty.release()
 
@@ -256,7 +257,7 @@ class FlexQueue():
                     if remaining <= 0.0:
                         raise Empty('empty list')
                     self.not_empty.wait(remaining)
-            self._update(i,value)
+                self._update(i,value)
         finally:
             self.not_empty.release()
 

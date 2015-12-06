@@ -166,7 +166,7 @@ def main(argv):
         win = fig.canvas.manager.window
         x = personality_results[0]
         rects = plt.bar(range(len(x)), x, align='center', color=colors)
-        plt.xticks(range(len(x)), trait_names+trait_names, rotation='vertical')
+        plt.xticks(range(len(x)), trait_names+trait_names, rotation=-90)
         plt.show()
         win.after(100, lambda: animate_barplot(fig, rects, personality_results))
 

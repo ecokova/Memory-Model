@@ -21,7 +21,6 @@ class MemoryThread(threading.Thread):
         
     def run(self):
         start_time = time.time()
-        #print start_time
         while (1):
             if self.DONE[0]:
                 return

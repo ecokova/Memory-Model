@@ -1,7 +1,46 @@
 Elena Cokova, Jen Hammelman, and Naomi Zarrilli
 Comp 50 Final Project
 
+Operation----------------------------------------------------------------------
 How to run:
+usage: MBTI_ASModel.py [-h] [-q NUMQS] [-qfile QFILE] [-afile AFILE] [-t TIME]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -q NUMQS, --numQs NUMQS
+        number of questions, default 10
+  -qfile QFILE, --qfile QFILE
+        question file, default Data/myers-briggs.csv
+  -afile AFILE, --afile AFILE
+        answer file, default stdin
+  -t TIME, --time TIME  
+        time for waiting, default 0.2
+
+  The question file must follow a five-line format:
+  1. Question
+  2. Option A
+  3. Option B
+  4. Statement for option A
+  5. Statement for option B
+
+  API Keys:
+  The program relies on an online API that limits each user to 1000 calls a 
+  day. If running the program causes a json parse error, try changing the API
+  key.
+
+  The relevant line is 63:
+	'ClassifyText?readkey=*********&' + \
+	
+  Replace asterisks with one of the following API keys:
+  qv7uGKYDBcSK
+  jHP7vqc5rX83
+
+Dependencies:
+To run the program, the following must be installed:
+  wn
+  TKinter
+
+Files--------------------------------------------------------------------------
 
 FlexQueue.py
 This is an extension of the Python Queue implementation. We added a function

@@ -6,10 +6,10 @@ Created 11/22/2015
 Edited 12/4/2015
 '''
 
-import memory
-import action
-import retrieval_underscores as retrieval
-import FlexQueue
+from Source import memory
+from Source import action
+from Source import retrieval
+from Source import FlexQueue
 import threading
 import sys
 import io
@@ -54,7 +54,7 @@ def analyze_personality(memories):
     for i in range(len(memories)):
         mem = memories[i]
         assoc = [x[0] for x in mem.queue.queue]
-        words = '+'.join(assoc) #reduce(operator.add, stmAssoc, '')
+        words = '+'.join(assoc) 
         for trait in all_traits:
             num = [0.5, 0.5]
             text = words.replace(' ', '+')
@@ -103,9 +103,9 @@ def parseQs(qfile):
 
 def main(argv):
     parser = argparse.ArgumentParser(description='MBTI Memory Model')
-    parser.add_argument('-q','--numQs', type=int, help='number of questions')
+    parser.add_argument('-q','--numQs', type=int, help='number of questions', default=10)
     parser.add_argument('-qfile', '--qfile', help='question file', 
-                        default='myers-briggs.csv')
+                        default='Data/myers-briggs.csv')
     parser.add_argument('-afile', '--afile', help='answer file default stdin',
                         default='stdin')
     parser.add_argument('-t','--time', type=float, help='time for waiting',

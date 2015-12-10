@@ -1,0 +1,40 @@
+Elena Cokova, Jen Hammelman, and Naomi Zarrilli
+Comp 50 Final Project
+
+How to run:
+
+FlexQueue.py
+This is an extension of the Python Queue implementation. We added a function
+that allowed us to randomly peek into the Queue, which gives the user the
+ability to view a random element without the element being removed from the
+queue. We also added an update function.
+
+action.py
+The action class represents a generic cognitive process that is responsible for
+moving memories from one store to the next. Memories each have an associated
+frequency to control when they may be moved to the next memory story. The
+action chooses a random memory to act on and checks its frequency. If the
+frequency is at the action's predetermined threshold, the memory is moved to the
+end of the next memory store. If not, the action increments the frequency.
+
+memory.py
+The memory class represents an individual memory bank. It has a queue which
+stores memories and can be accessed by other classes. The memory class inherits
+from the threading library and its run function simply removes the oldest
+memory in its queue every x seconds, which represents memory decay.
+
+retrieval.py
+The retrieval class represents the process of "remembering" something from
+long-term that is similar to a current short-term memory. This involves first
+accessing short-term to select a random memory, finding a like-association in
+long-term, and then moving said association into long-term. To determine
+"likeness" we used the Wordnet package @@ for the command-line to look for
+similar words between short-term and long-term.
+
+main.py
+This issues a personality test to the user, takes in user answers, and stores
+the answers as sentences into memory. The processes of memories being stored,
+moved, and decayed take place as the memory threads run. At various points of
+the user inputting answers, an MBTI test is run on the current memories stored.
+When the test is done a graph is rendered that demonstrates changes in the
+user's MBTI over time.

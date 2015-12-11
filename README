@@ -37,8 +37,8 @@ optional arguments:
 
 Dependencies:
 To run the program, the following must be installed:
-  wn
-  TKinter
+  wn (https://wordnet.princeton.edu/)
+  TKinter (https://wiki.python.org/moin/TkInter)
 
 Files--------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ long-term, and then moving said association into long-term. To determine
 "likeness" we used the Wordnet package @@ for the command-line to look for
 similar words between short-term and long-term.
 
-main.py
+MBTI_ASModel.py
 This issues a personality test to the user, takes in user answers, and stores
 the answers as sentences into memory. The processes of memories being stored,
 moved, and decayed take place as the memory threads run. At various points of
